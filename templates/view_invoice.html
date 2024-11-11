@@ -1,0 +1,123 @@
+{% extends "base.html" %} {% block title %}View Invoice{% endblock %} {% block content
+%}
+<html lang="en">
+<head>
+    <!-- Include your head elements here -->
+    <title>Invoice #{{ invoice.id }}</title>
+    <style>
+        /* Float right for Client Information */
+        .client-info {
+            float: right;
+            width: 60%; /* Adjust this to control width */
+        }
+
+    .logo-container {
+            text-align: center; /* Center the logo */
+            margin-bottom: 20px; /* Space below the logo */
+        }
+
+        table {
+        border-collapse: collapse; /* Ensures borders are collapsed into a single border */
+        width: 80%; /* Full width of the container */
+    }
+    th, td {
+        padding: 8px; /* Adds padding inside cells */
+        border: 1px solid #ddd; /* Adds a light gray border */
+        text-align: left; /* Aligns text to the left */
+    }
+    th {
+        background-color: #f2f2f2; /* Light gray background for the header */
+    }
+
+    .responsive {
+            width: 25%;
+            height: auto;
+        }
+    </style>
+</head>
+<div class="logo-container">
+        {% if user.company_logo %}
+            <img src="data:image/jpeg;base64,{{ user.company_logo }}" alt="Company Logo" class="responsive" />
+        {% else %}
+            <p>No logo available</p>
+        {% endif %}
+    </div>
+
+<body>
+    <h1>Invoice #{{ invoice.id }} : {{ invoice.invoice_number }}</h1>
+    <div class="client-info">
+    <h2>Client Information</h2>
+    <p><strong>Name:</strong> {{ invoice.client_name }}</p>
+    <p><strong>Address:</strong> {{ invoice.client_address1 }}, {{ invoice.client_address2 }}</p>
+    <p><strong>City/Town:</strong> {{ invoice.client_city }}</p>
+    <p><strong>County:</strong> {{ invoice.client_county }}</p>
+    <p><strong>Postcode:</strong> {{ invoice.client_postcode }}</p>
+    <p><strong>Country:</strong> {{ invoice.client_country }}</p>
+    </div>
+
+    <h2>Company Information</h2>
+    <p><strong>Name:</strong> {{ user.company_name }}</p>
+    <p><strong>Address:</strong> {{ user.company_address1 }}, {{ user.company_address2 }}</p>
+    <p><strong>City/Town:</strong> {{ user.company_city }}</p>
+    <p><strong>County:</strong> {{ user.company_county }}</p>
+    <p><strong>Postcode:</strong> {{ user.company_postcode }}</p>
+    <p><strong>Country:</strong> {{ user.company_country }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Tel:</strong> {{ user.company_tel_number }}</p>
+    <p><strong>Company registration no.:</strong> {{ user.company_reg_number }}</p> <br>
+
+    <h2>Invoice Details</h2>
+    <p><strong>Invoice Number:</strong> {{invoice.invoice_number}}</p>
+    <p><strong>Date Issued:</strong> {{invoice.date_issued.strftime('%d-%m-%Y')}}</p>
+    <p><strong>Reference:</strong> {{invoice.invoice_reference}}</p>
+    <p><strong>VAT Number</strong> {{invoice.vat_number}}</p> <br>
+
+    <h3>Invoice Items</h3>
+
+    <p><strong>Invoice:</strong> #{{ invoice.invoice_number }}</p>
+<p><strong>Date Issued:</strong> {{ invoice.date_issued }}</p>
+<p><strong>Client Name:</strong> {{ invoice.client_name }}</p>
+
+<h3>Items</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit Price</th>
+            <th>Subtotal</th>
+            <th>VAT Total ({{invoice.vat_rate}}%)</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in invoice_items %}
+        <tr>
+            <td>{{ item.item_description }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.unit_price }}</td>
+            <td>{{ item.subtotal }}</td>
+            <td>{{ item.vat_total }}</td>
+            <td>{{ item.total }}</td>
+        </tr>
+        {% endfor %}
+    <tr>
+            <td colspan="3" style="text-align: right; font-weight: bold;">Total:</td>
+            <td style="font-weight: bold;">{{ invoice.subtotal_total }}</td>
+            <td style="font-weight: bold;">{{ invoice.vat_total }}</td>
+            <td style="font-weight: bold;">{{ invoice.invoice_total }}</td>
+        </tr>
+    </tbody>
+</table> <br>
+    <p><strong>Payment Due By:</strong> {{invoice.due_date.strftime('%d-%m-%Y')}}</p> <br>
+
+
+    <a href="{{ url_for('views.download_invoice', invoice_id=invoice.id) }}">Download PDF</a>
+    <form action="{{ url_for('views.delete_invoice', invoice_id=invoice.id) }}" method="POST" style="display:inline;">
+        <button type="submit" onclick="return confirm('Are you sure you want to delete this invoice?');">Delete Invoice</button>
+    </form>
+    <br>
+    <a href="{{ url_for('views.home') }}">Back to Home</a>
+</body>
+</html>
+{% endblock %}
